@@ -1,11 +1,20 @@
+import AgentList from "@/components/AgentList";
+import AgentForm from "@/components/AgentForm";
 import { Resizable } from "@/components/Resizable";
 import Chat from "@/features/Chat";
-import { Flex } from "@radix-ui/themes";
+import { Flex, Box } from "@radix-ui/themes";
+import { useStore } from "@nanostores/react";
+import { $formData, $selectedAgentId } from "@/store/agentForm";
+
 
 function Home() {
+    const form = useStore($formData);
+  const selectedId = useStore($selectedAgentId);
+  const shouldShowForm = selectedId !== null || form.id === "";
   return (
     <Flex gap="8" width="100%" height="100%">
-      <h1>Agent view ici</h1>
+      <AgentList/>
+      {shouldShowForm && <AgentForm />}
 
       <Resizable
         class="resizable"

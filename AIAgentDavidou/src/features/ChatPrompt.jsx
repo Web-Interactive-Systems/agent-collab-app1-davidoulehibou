@@ -2,8 +2,10 @@ import { PaperPlaneIcon } from "@radix-ui/react-icons";
 import { Button, Flex, TextArea } from "@radix-ui/themes";
 import { useRef, useState } from "react";
 import { styled } from "@/lib/stitches";
+import { onDummyAgent } from "@/actions/agent";
+import { $messages, updateMessages } from "@/store/messages";
 
-
+import { addMessage } from "@/store/messages";
 
 const PrompContainer = styled("div", {
   width: "100%",
@@ -24,30 +26,42 @@ const PromptArea = styled(TextArea, {
   },
 });
 
-function ChatPrompt({AddPrompt}) {
-  const [isPromptEmpty, setIsPromptEmpty] = useState(true)
+function ChatPrompt() {
+  const [isPromptEmpty, setIsPromptEmpty] = useState(true);
 
-  const promptRef = useRef(null)
+  const promptRef = useRef(null);
 
-
-  console.log("test")
-
+  console.log("test");
 
   const onTextChange = (e) => {
-    promptRef.current = e.target.value
+    promptRef.current = e.target.value;
     // console.log("onTextChange", e.target.value);
     // setPrompt(e.target.value);
-    setIsPromptEmpty(promptRef.current.trim().length === 0)
+    setIsPromptEmpty(promptRef.current.trim().length === 0);
   };
 
   const onSendPrompt = async () => {
-    console.log("onSendPrompt", promptRef);
-    const message = {
+    addMessage({
+      role: "user",
       content: promptRef.current,
-      role:"user",
-      id:Math.random()
+      id: Math.random().toString(),
+    });
+
+    const messages = $messages.get()
+
+    const response = {
+      content:"",
+      role:'assistant',
+      id: Math.random().toString(),
     }
-    AddPrompt(message)
+
+    addMessage(response)
+
+    for await ( const token of onDummyAgent()){
+      response.content = response.content + token;
+      updateMessages([...messages, response])
+    }
+    
   };
 
   return (
@@ -60,8 +74,7 @@ function ChatPrompt({AddPrompt}) {
           />
 
           <Flex justify="end" width="100%">
-            <Button onClick={onSendPrompt} 
-            disabled={isPromptEmpty}>
+            <Button onClick={onSendPrompt} disabled={isPromptEmpty}>
               <PaperPlaneIcon />
             </Button>
           </Flex>

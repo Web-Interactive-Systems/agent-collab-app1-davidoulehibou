@@ -2,6 +2,8 @@
 import { FaceIcon, PersonIcon } from "@radix-ui/react-icons";
 import { Box, Flex } from "@radix-ui/themes";
 import { styled } from "@/lib/stitches";
+import { useStore } from "@nanostores/react";
+import { $messages } from "@/store/messages";
 
 const BoxMessage = styled("div", {
   display: "flex",
@@ -28,11 +30,11 @@ const BoxMessage = styled("div", {
   },
 });
 
-function ChatList({messages}) {
-  
+function ChatList() {
+  const messages = useStore($messages);
 
   return (
-    <Flex direction="column" gap="2" overflow="scroll">
+    <Flex direction="column" gap="2" overflow="scroll" overflowX="hidden">
       {messages.map((message) => (
         <BoxMessage className={message.role}>
           <span>{message.role}</span>
